@@ -1,5 +1,5 @@
 # dsh-workbench-console —— 工作台框架
-# 本包只提供工作台外壳；具体工作台（如千川）由各自插件通过客户端 API 注册。
+# 本包只提供工作台外壳与注册 API；具体工作台由各自插件通过客户端 API 注册进来。
 - insert:
     - id: workbench-console
       name: 'dsh-workbench-console'
