@@ -26,7 +26,9 @@ export function apply(ctx, config) {
     /** 用户自建的简易工作台（数据驱动，非代码模块） */
     items: [],
     /** 各工作台模块自己的数据，按 dataKey 分区；框架不解释内容 */
-    data: {}
+    data: {},
+    /** 工作台 → 绑定的对话 sessionId（深度绑定对话窗口） */
+    binds: {}
   }
 
   function readState() {
@@ -36,6 +38,7 @@ export function apply(ctx, config) {
       const s = Object.assign(JSON.parse(JSON.stringify(defaultState)), raw)
       if (!s.items || !Array.isArray(s.items)) s.items = []
       if (!s.data || typeof s.data !== 'object') s.data = {}
+      if (!s.binds || typeof s.binds !== 'object') s.binds = {}
       return s
     } catch { return JSON.parse(JSON.stringify(defaultState)) }
   }
@@ -124,6 +127,32 @@ export function apply(ctx, config) {
       } else return { ok: false, error: '未知 action：' + act }
       const f = writeState(s)
       return f ? { ok: false, error: f } : { ok: true, state: s }
+    },
+
+    /** 重命名插件注册的工作台（存到 state.modTitles，不碰插件本身） */
+    renameModule: async (args) => {
+      const s = readState()
+      const id = String((args && args.id) || '')
+      const title = String((args && args.title) || '').trim()
+      if (!id) return { ok: false, error: '缺少 id' }
+      if (!title) return { ok: false, error: '名称不能为空' }
+      if (!s.modTitles || typeof s.modTitles !== 'object') s.modTitles = {}
+      s.modTitles[id] = title
+      const f = writeState(s)
+      return f ? { ok: false, error: f } : { ok: true, state: s }
+    },
+
+    /** 绑定/解绑对话：args = { id, sessionId }（sessionId 传 null 解绑） */
+    bindSession: async (args) => {
+      const s = readState()
+      const id = String((args && args.id) || '')
+      if (!id) return { ok: false, error: '缺少 id' }
+      const sid = args && args.sessionId
+      if (!s.binds || typeof s.binds !== 'object') s.binds = {}
+      if (sid === null || sid === undefined || sid === '') delete s.binds[id]
+      else s.binds[id] = String(sid)
+      const f = writeState(s)
+      return f ? { ok: false, error: f } : { ok: true, state: s, sessionId: s.binds[id] || null }
     },
 
     /** 模块数据分区读写（框架不解释内容，只是通用 KV） */

@@ -1,6 +1,6 @@
 {
   "name": "dsh-workbench-console",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "工作台框架：在侧边栏「工作区」下方提供可扩展的工作台外壳，其他插件通过 API 注册自己的工作台",
   "type": "module",
   "license": "MIT",
